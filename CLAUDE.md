@@ -1,70 +1,70 @@
 # CLAUDE.md
 
-This file provides guidance for AI assistants (Claude and others) working in this repository.
+このファイルは、このリポジトリで作業するAIアシスタント（Claudeなど）向けのガイドラインを提供します。
 
-## Repository Overview
+## リポジトリ概要
 
-**Repository:** `Tomoaki1112345678999/test_rep1`
+**リポジトリ:** `Tomoaki1112345678999/test_rep1`
 
-This repository is in its initial state. No source code, tests, or configuration files have been added yet. This document will be updated as the project evolves.
+このリポジトリは初期状態です。ソースコード、テスト、設定ファイルはまだ追加されていません。プロジェクトの成長に伴い、このドキュメントも更新していきます。
 
-## Current State
+## 現在の状態
 
-- No source code files
-- No dependency manifests (package.json, requirements.txt, etc.)
-- No build or test infrastructure
-- No CI/CD configuration
+- ソースコードなし
+- 依存関係ファイルなし（package.json、requirements.txt など）
+- ビルド・テスト基盤なし
+- CI/CD 設定なし
 
-## Development Workflow
+## 開発ワークフロー
 
-### Branching
+### ブランチ運用
 
-- Feature branches follow the pattern: `claude/<description>-<session-id>`
-- Always develop on the designated feature branch
-- Never push directly to `main` or `master` without explicit permission
+- フィーチャーブランチの命名規則: `claude/<説明>-<セッションID>`
+- 必ず指定されたフィーチャーブランチで開発する
+- 明示的な許可なく `main` や `master` へ直接プッシュしない
 
-### Git Operations
+### Git 操作
 
 ```bash
-# Push to branch
-git push -u origin <branch-name>
+# ブランチをプッシュ
+git push -u origin <ブランチ名>
 
-# Fetch specific branch
-git fetch origin <branch-name>
+# 特定ブランチをフェッチ
+git fetch origin <ブランチ名>
 ```
 
-If push fails due to network errors, retry up to 4 times with exponential backoff (2s, 4s, 8s, 16s).
+ネットワークエラーでプッシュが失敗した場合は、指数バックオフ（2秒、4秒、8秒、16秒）で最大4回リトライする。
 
-### Commit Messages
+### コミットメッセージ
 
-Write clear, descriptive commit messages that explain *what* changed and *why*:
+変更内容と理由を明確に記述する:
 
 ```
-Short summary (imperative mood, ≤72 chars)
+短い要約（命令形、72文字以内）
 
-Optional longer description if needed. Explain the motivation
-and contrast with previous behavior.
+必要に応じて詳細説明を追加。変更の動機や
+以前の動作との違いを説明する。
 ```
 
-## Conventions (to be updated as code is added)
+## 規約（コード追加時に随時更新）
 
-As the project grows, document the following here:
+プロジェクトの成長に合わせて以下を記入する:
 
-- **Language/runtime:** TBD
-- **Package manager:** TBD
-- **Code style/formatter:** TBD
-- **Linter:** TBD
-- **Test framework:** TBD
-- **How to run tests:** TBD
-- **How to build:** TBD
-- **Environment variables:** TBD
+- **言語/ランタイム:** 未定
+- **パッケージマネージャー:** 未定
+- **コードスタイル/フォーマッター:** 未定
+- **リンター:** 未定
+- **テストフレームワーク:** 未定
+- **テストの実行方法:** 未定
+- **ビルド方法:** 未定
+- **環境変数:** 未定
 
-## AI Assistant Guidelines
+## AIアシスタント向けガイドライン
 
-- Always read files before editing them
-- Prefer editing existing files over creating new ones
-- Keep changes minimal and focused on the task
-- Do not add comments, docstrings, or type annotations to code you did not change
-- Do not refactor or "improve" code beyond what was requested
-- Confirm before taking destructive or irreversible actions (force push, deleting files, etc.)
-- Check for security issues (injection, XSS, SQL injection, etc.) in any code you write
+- ファイルを編集する前に必ず内容を読む
+- 新規ファイルの作成より既存ファイルの編集を優先する
+- 変更はタスクに必要な最小限にとどめる
+- 変更していないコードにコメント・docstring・型アノテーションを追加しない
+- 要求された範囲を超えてリファクタリングや「改善」を行わない
+- 破壊的・不可逆な操作（強制プッシュ、ファイル削除など）の前に必ず確認する
+- 記述するコードにセキュリティ上の問題（インジェクション、XSS、SQLインジェクションなど）がないか確認する
