@@ -1,0 +1,69 @@
+name: Claude セキュリティスキャン
+
+# mainへのpush時とPR作成時にセキュリティスキャンを実行
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "**.py"
+      - "**.js"
+      - "**.ts"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "**.py"
+      - "**.js"
+      - "**.ts"
+
+jobs:
+  security-scan:
+    name: Claude セキュリティスキャン
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+      contents: read
+      # セキュリティ警告をGitHub Security Alertsに登録する場合
+      # security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 依存関係インストール
+        run: pip install anthropic PyGithub
+
+      - name: Claude セキュリティスキャン (push時)
+        if: github.event_name == 'push'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SCAN_PATHS: "."
+        run: python scripts/claude_security_scan.py
+        # 重大な問題が見つかった場合はexit code 1でfailする
+
+      - name: Claude セキュリティスキャン (PR時)
+        if: github.event_name == 'pull_request'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SCAN_PATHS: "."
+        run: python scripts/claude_security_scan.py
+
+      - name: スキャン結果をJob Summaryに記録
+        if: always()
+        run: |
+          echo "## 🔒 セキュリティスキャン完了" >> $GITHUB_STEP_SUMMARY
+          echo "- スキャン日時: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- モデル: claude-opus-4-6" >> $GITHUB_STEP_SUMMARY
+
+# 使い方:
+# 1. リポジトリの Settings > Secrets > Actions に ANTHROPIC_API_KEY を追加
+# 2. コードをpush / PRを作成するとClaudeがセキュリティスキャンを実行します
+# 3. 重大な問題が見つかった場合、ワークフローが失敗してマージをブロックできます

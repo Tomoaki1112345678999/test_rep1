@@ -1,0 +1,33 @@
+name: CI - テスト
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 依存関係インストール
+        run: pip install -r requirements.txt
+
+      - name: テスト実行
+        run: pytest tests/ -v --tb=short --cov=app --cov-report=term-missing
+
+      - name: カバレッジレポート（PR時）
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## テストカバレッジ" >> $GITHUB_STEP_SUMMARY
+          pytest tests/ --cov=app --cov-report=term-missing --no-header -q >> $GITHUB_STEP_SUMMARY

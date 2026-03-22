@@ -1,0 +1,40 @@
+name: Claude Issue トリアージ
+
+# 新しいIssueが作成されたときにClaudeが自動でトリアージする
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  triage:
+    name: Claude Issue トリアージ
+    runs-on: ubuntu-latest
+
+    # Issueへのラベル付けとコメント投稿権限
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 依存関係インストール
+        run: pip install anthropic PyGithub
+
+      - name: Claude Issue トリアージ実行
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: python scripts/claude_issue_triage.py
+
+# 使い方:
+# 1. リポジトリの Settings > Secrets > Actions に ANTHROPIC_API_KEY を追加
+# 2. Issueを作成するとClaudeが自動でラベル付けとウェルカムコメントを投稿します

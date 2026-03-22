@@ -1,0 +1,44 @@
+name: Claude PR レビュー
+
+# PRが開かれたとき・更新されたときにClaudeがコードをレビューする
+on:
+  pull_request:
+    types: [opened, synchronize]
+    # draft PRはスキップ
+    # branches: [main, master]
+
+jobs:
+  review:
+    name: Claude コードレビュー
+    runs-on: ubuntu-latest
+    # draft PRはスキップ
+    if: github.event.pull_request.draft == false
+
+    # PRへのコメント投稿権限
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 依存関係インストール
+        run: pip install anthropic PyGithub
+
+      - name: Claude PR レビュー実行
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python scripts/claude_pr_review.py
+
+# 使い方:
+# 1. リポジトリの Settings > Secrets > Actions に ANTHROPIC_API_KEY を追加
+# 2. PRを作成するとClaudeが自動でレビューコメントを投稿します
