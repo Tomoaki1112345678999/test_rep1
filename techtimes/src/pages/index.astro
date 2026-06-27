@@ -56,7 +56,7 @@ const weekday = ['日', '月', '火', '水', '木', '金', '土'][now.getDay()];
       {panels.map((panel) => (
         <section class="period-panel" data-panel={panel.key} hidden={panel.key !== defaultKey}>
           {panel.items.length > 0 ? (
-            <PaperSection articles={panel.items} />
+            <PaperSection articles={panel.items} qiitaTop={panel.qiitaTop} zennTop={panel.zennTop} />
           ) : (
             <p class="text-center text-[var(--color-subink)] py-12">
               この期間の記事はまだありません。
