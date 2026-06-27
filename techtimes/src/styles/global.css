@@ -38,6 +38,19 @@ body {
   overflow: hidden;
 }
 
+/* 期間切替タブ: 状態は aria-pressed で一元管理し、クラスの競合を避ける */
+.period-tab {
+  background-color: transparent;
+  color: var(--color-ink);
+}
+.period-tab:hover {
+  background-color: #efe9db;
+}
+.period-tab[aria-pressed='true'] {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+}
+
 /* 期間切替: 非選択タブの中身を隠す */
 .period-panel[hidden] {
   display: none;
