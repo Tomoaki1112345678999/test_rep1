@@ -1,0 +1,18 @@
+---
+import type { Source } from '../lib/types';
+interface Props {
+  source: Source;
+}
+const { source } = Astro.props;
+const styles: Record<Source, { label: string; color: string }> = {
+  qiita: { label: 'Qiita', color: '#55c500' },
+  zenn: { label: 'Zenn', color: '#3ea8ff' },
+};
+const s = styles[source];
+---
+<span
+  class="inline-block rounded-sm px-1.5 py-0.5 text-[10px] font-bold leading-none text-white"
+  style={`background-color:${s.color}`}
+>
+  {s.label}
+</span>

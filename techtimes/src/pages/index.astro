@@ -1,0 +1,112 @@
+---
+import Base from '../layouts/Base.astro';
+import PaperSection from '../components/PaperSection.astro';
+import { getArticles } from '../lib/articles';
+import { rankByPeriod } from '../lib/ranking';
+import { PERIODS } from '../lib/types';
+
+const { articles, usedFallback } = await getArticles();
+
+const panels = PERIODS.map((p) => ({
+  ...p,
+  items: rankByPeriod(articles, p.key, 18),
+}));
+
+const defaultKey = 'weekly';
+
+const now = new Date();
+const dateLine = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+const weekday = ['日', '月', '火', '水', '木', '金', '土'][now.getDay()];
+---
+<Base title="TECH TIMES ｜ QiitaとZennの人気技術記事ランキング">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <!-- マストヘッド -->
+    <header class="pt-6 pb-3">
+      <div class="flex items-center justify-between text-[11px] text-[var(--color-subink)] border-b border-[var(--color-rule)] pb-2">
+        <span>{dateLine}（{weekday}）</span>
+        <span>QiitaとZennの人気記事を毎日更新</span>
+      </div>
+      <div class="text-center py-4 border-b-4 border-double border-[var(--color-ink)]">
+        <h1 class="font-serif font-black tracking-[0.2em] text-4xl sm:text-6xl text-[var(--color-ink)]">
+          TECH TIMES
+        </h1>
+        <p class="mt-1 font-serif text-sm tracking-[0.3em] text-[var(--color-subink)]">
+          テック・タイムズ
+        </p>
+      </div>
+    </header>
+
+    {usedFallback && (
+      <p class="my-3 text-center text-[11px] text-[var(--color-subink)] bg-[#efe9db] py-1.5 rounded">
+        ※ 現在サンプルデータを表示しています（記事ソースの取得に失敗した場合の表示です）
+      </p>
+    )}
+
+    <!-- 期間切替タブ -->
+    <nav class="flex justify-center gap-1 my-5" aria-label="集計期間">
+      {PERIODS.map((p) => (
+        <button
+          type="button"
+          data-tab={p.key}
+          class:list={[
+            'period-tab px-5 py-1.5 font-serif font-bold text-sm border border-[var(--color-ink)] transition-colors',
+            p.key === defaultKey
+              ? 'bg-[var(--color-ink)] text-[var(--color-paper)]'
+              : 'bg-transparent text-[var(--color-ink)] hover:bg-[#efe9db]',
+          ]}
+          aria-pressed={p.key === defaultKey ? 'true' : 'false'}
+        >
+          {p.label}ランキング
+        </button>
+      ))}
+    </nav>
+
+    <!-- 各期間の紙面 -->
+    <main class="pb-12">
+      {panels.map((panel) => (
+        <section class="period-panel" data-panel={panel.key} hidden={panel.key !== defaultKey}>
+          {panel.items.length > 0 ? (
+            <PaperSection articles={panel.items} />
+          ) : (
+            <p class="text-center text-[var(--color-subink)] py-12">
+              この期間の記事はまだありません。
+            </p>
+          )}
+        </section>
+      ))}
+    </main>
+
+    <!-- フッター: 出典と免責 -->
+    <footer class="border-t-2 border-[var(--color-ink)] py-6 text-[11px] text-[var(--color-subink)] leading-relaxed">
+      <p class="font-serif font-bold text-sm text-[var(--color-ink)] mb-2">TECH TIMES について</p>
+      <p>
+        本サイトは <a class="underline" href="https://qiita.com" target="_blank" rel="noopener noreferrer">Qiita</a>
+        および <a class="underline" href="https://zenn.dev" target="_blank" rel="noopener noreferrer">Zenn</a>
+        で公開された技術記事のうち、いいね/LGTM数の多いものをランキング形式で紹介する非公式のキュレーションサイトです。
+        各記事の見出し・概要・メタ情報のみを掲載し、本文は転載していません。記事の全文は各リンク先の元記事でお読みください。
+        著作権は各記事の著者に帰属します。掲載の取り下げをご希望の場合は元サイトの規約に従いご連絡ください。
+      </p>
+      <p class="mt-3">© {now.getFullYear()} TECH TIMES — 記事データは各サービスの公開APIをもとに自動生成しています。</p>
+    </footer>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll<HTMLButtonElement>('.period-tab');
+    const panels = document.querySelectorAll<HTMLElement>('.period-panel');
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const key = tab.dataset.tab;
+        tabs.forEach((t) => {
+          const on = t === tab;
+          t.setAttribute('aria-pressed', on ? 'true' : 'false');
+          t.classList.toggle('bg-[var(--color-ink)]', on);
+          t.classList.toggle('text-[var(--color-paper)]', on);
+        });
+        panels.forEach((p) => {
+          p.hidden = p.dataset.panel !== key;
+        });
+      });
+    });
+  </script>
+</Base>

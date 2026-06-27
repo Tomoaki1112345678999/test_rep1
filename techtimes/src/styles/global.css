@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+
+/* 日経新聞風のデザイントークン */
+@theme {
+  --font-serif: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'YuMincho',
+    serif;
+  --font-sans: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+
+  --color-paper: #f8f6f0;
+  --color-ink: #14110d;
+  --color-subink: #5a544a;
+  --color-rule: #d8d2c4;
+  --color-accent: #9a1f23; /* 新聞の見出し用クリムゾン */
+  --color-navy: #1f3a5f;
+}
+
+html {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+/* 行数制限ユーティリティ */
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 期間切替: 非選択タブの中身を隠す */
+.period-panel[hidden] {
+  display: none;
+}

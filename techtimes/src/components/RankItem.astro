@@ -1,0 +1,23 @@
+---
+import type { Article } from '../lib/types';
+import { compactNumber } from '../lib/format';
+
+interface Props {
+  article: Article;
+  rank: number;
+}
+const { article, rank } = Astro.props;
+---
+<li class="flex gap-3 py-2 border-b border-[var(--color-rule)] last:border-0">
+  <span class="font-serif font-bold text-lg text-[var(--color-accent)] w-5 shrink-0 leading-snug">
+    {rank}
+  </span>
+  <a href={article.url} target="_blank" rel="noopener noreferrer" class="group block">
+    <p class="font-serif text-sm leading-snug text-[var(--color-ink)] group-hover:text-[var(--color-accent)] clamp-2">
+      {article.title}
+    </p>
+    <p class="mt-1 text-[11px] text-[var(--color-subink)]">
+      {article.author}・♥ {compactNumber(article.likes)}
+    </p>
+  </a>
+</li>
