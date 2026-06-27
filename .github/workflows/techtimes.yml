@@ -1,0 +1,55 @@
+name: Build & Deploy TechTimes
+
+# QiitaとZennから人気記事を取得し、静的サイトを生成してGitHub Pagesへ配信する。
+on:
+  schedule:
+    # 6時間ごとに自動更新（UTC基準）
+    - cron: '0 */6 * * *'
+  push:
+    branches: [master]
+    paths:
+      - 'techtimes/**'
+      - '.github/workflows/techtimes.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Pagesへのデプロイは同時実行しない（進行中は待つ）
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: techtimes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: techtimes/package-lock.json
+      - run: npm ci
+      - run: npm run build
+        env:
+          # 任意。設定するとQiita APIのレート上限が上がる（未設定でも動作）。
+          QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: techtimes/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

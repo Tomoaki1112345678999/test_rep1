@@ -1,0 +1,81 @@
+---
+import type { Article } from '../lib/types';
+import ArticleCard from './ArticleCard.astro';
+import RankItem from './RankItem.astro';
+
+interface Props {
+  articles: Article[];
+}
+const { articles } = Astro.props;
+
+const lead = articles[0];
+const subs = articles.slice(1, 3);
+const grid = articles.slice(3, 18);
+
+const qiitaTop = articles.filter((a) => a.source === 'qiita').slice(0, 5);
+const zennTop = articles.filter((a) => a.source === 'zenn').slice(0, 5);
+---
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-8">
+  <!-- メイン紙面 -->
+  <div class="lg:col-span-8">
+    {lead && (
+      <div class="pb-6 border-b-2 border-[var(--color-ink)]">
+        <ArticleCard article={lead} variant="lead" />
+      </div>
+    )}
+
+    {subs.length > 0 && (
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 py-6 border-b border-[var(--color-rule)]">
+        {subs.map((a) => (
+          <div class="md:border-l md:first:border-l-0 md:pl-6 md:first:pl-0 border-[var(--color-rule)]">
+            <ArticleCard article={a} variant="sub" />
+          </div>
+        ))}
+      </div>
+    )}
+
+    {grid.length > 0 && (
+      <>
+        <h2 class="mt-6 mb-3 font-serif font-bold text-sm tracking-widest text-[var(--color-accent)] border-b border-[var(--color-accent)] pb-1">
+          注目の記事
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-5">
+          {grid.map((a, i) => (
+            <div class="pb-4 border-b border-[var(--color-rule)]">
+              <ArticleCard article={a} variant="standard" rank={i + 4} />
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+
+  <!-- サイドバー: ソース別ランキング -->
+  <aside class="lg:col-span-4 lg:border-l lg:border-[var(--color-rule)] lg:pl-8 space-y-8">
+    {qiitaTop.length > 0 && (
+      <section>
+        <h2 class="font-serif font-bold text-base border-b-2 border-[var(--color-ink)] pb-1 mb-1">
+          Qiita ランキング
+        </h2>
+        <ol class="list-none">
+          {qiitaTop.map((a, i) => (
+            <RankItem article={a} rank={i + 1} />
+          ))}
+        </ol>
+      </section>
+    )}
+
+    {zennTop.length > 0 && (
+      <section>
+        <h2 class="font-serif font-bold text-base border-b-2 border-[var(--color-ink)] pb-1 mb-1">
+          Zenn ランキング
+        </h2>
+        <ol class="list-none">
+          {zennTop.map((a, i) => (
+            <RankItem article={a} rank={i + 1} />
+          ))}
+        </ol>
+      </section>
+    )}
+  </aside>
+</div>

@@ -15,6 +15,10 @@ jobs:
       issues: write
       contents: read
 
+    # ANTHROPIC_API_KEY が未設定でもジョブを失敗させないため env で参照する
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -28,12 +32,16 @@ jobs:
         run: pip install anthropic PyGithub
 
       - name: Claude Issue トリアージ実行
+        if: ${{ env.ANTHROPIC_API_KEY != '' }}
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: python scripts/claude_issue_triage.py
+
+      - name: スキップ通知（APIキー未設定）
+        if: ${{ env.ANTHROPIC_API_KEY == '' }}
+        run: echo "ANTHROPIC_API_KEY が未設定のため Claude トリアージをスキップしました。" >> "$GITHUB_STEP_SUMMARY"
 
 # 使い方:
 # 1. リポジトリの Settings > Secrets > Actions に ANTHROPIC_API_KEY を追加

@@ -1,0 +1,52 @@
+---
+import type { Article } from '../lib/types';
+import SourceBadge from './SourceBadge.astro';
+import { jpDate, compactNumber } from '../lib/format';
+
+interface Props {
+  article: Article;
+  variant?: 'lead' | 'sub' | 'standard';
+  rank?: number;
+}
+const { article, variant = 'standard', rank } = Astro.props;
+
+const titleClass =
+  variant === 'lead'
+    ? 'font-serif font-bold leading-tight text-3xl md:text-4xl'
+    : variant === 'sub'
+      ? 'font-serif font-bold leading-snug text-xl md:text-2xl'
+      : 'font-serif font-bold leading-snug text-lg';
+---
+<article class="group">
+  <a href={article.url} target="_blank" rel="noopener noreferrer" class="block">
+    <div class="flex items-center gap-2 mb-1.5 text-[11px] text-[var(--color-subink)]">
+      {rank && (
+        <span class="font-serif font-bold text-[var(--color-accent)] text-sm leading-none">
+          {rank}
+        </span>
+      )}
+      <SourceBadge source={article.source} />
+      {article.tags[0] && (
+        <span class="uppercase tracking-wide text-[var(--color-navy)] font-semibold">
+          {article.tags[0]}
+        </span>
+      )}
+    </div>
+
+    <h3 class={`${titleClass} text-[var(--color-ink)] group-hover:text-[var(--color-accent)] transition-colors`}>
+      {article.title}
+    </h3>
+
+    {variant !== 'standard' && article.excerpt && (
+      <p class={`mt-2 text-[var(--color-subink)] leading-relaxed ${variant === 'lead' ? 'text-base clamp-3' : 'text-sm clamp-2'}`}>
+        {article.excerpt}
+      </p>
+    )}
+
+    <div class="mt-2 flex items-center gap-3 text-[11px] text-[var(--color-subink)]">
+      <span class="font-medium">{article.author}</span>
+      <span class="text-[var(--color-accent)] font-semibold">♥ {compactNumber(article.likes)}</span>
+      <span>{jpDate(article.publishedAt)}</span>
+    </div>
+  </a>
+</article>
