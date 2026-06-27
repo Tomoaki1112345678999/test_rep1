@@ -26,6 +26,10 @@ jobs:
       # セキュリティ警告をGitHub Security Alertsに登録する場合
       # security-events: write
 
+    # ANTHROPIC_API_KEY が未設定でもジョブを失敗させないため env で参照する
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -39,17 +43,15 @@ jobs:
         run: pip install anthropic PyGithub
 
       - name: Claude セキュリティスキャン (push時)
-        if: github.event_name == 'push'
+        if: ${{ github.event_name == 'push' && env.ANTHROPIC_API_KEY != '' }}
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           SCAN_PATHS: "."
         run: python scripts/claude_security_scan.py
         # 重大な問題が見つかった場合はexit code 1でfailする
 
       - name: Claude セキュリティスキャン (PR時)
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' && env.ANTHROPIC_API_KEY != '' }}
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
