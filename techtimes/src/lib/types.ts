@@ -23,8 +23,13 @@ export interface Article {
   excerpt: string;
 }
 
-export const PERIODS: { key: Period; label: string; days: number }[] = [
-  { key: 'daily', label: '日間', days: 1 },
-  { key: 'weekly', label: '週間', days: 7 },
-  { key: 'monthly', label: '月間', days: 30 },
+/**
+ * 集計期間の定義。
+ * minStocks は Qiita 取得時の最小ストック数しきい値。期間が長いほど高くして
+ * 「その期間で人気の記事」だけを集め、日間/週間/月間で別の顔ぶれになるようにする。
+ */
+export const PERIODS: { key: Period; label: string; days: number; minStocks: number }[] = [
+  { key: 'daily', label: '日間', days: 1, minStocks: 2 },
+  { key: 'weekly', label: '週間', days: 7, minStocks: 10 },
+  { key: 'monthly', label: '月間', days: 30, minStocks: 30 },
 ];

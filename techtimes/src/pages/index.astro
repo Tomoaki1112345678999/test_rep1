@@ -1,16 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 import PaperSection from '../components/PaperSection.astro';
-import { getArticles } from '../lib/articles';
-import { rankByPeriod } from '../lib/ranking';
+import { getRankings } from '../lib/articles';
 import { PERIODS } from '../lib/types';
 
-const { articles, usedFallback } = await getArticles();
-
-const panels = PERIODS.map((p) => ({
-  ...p,
-  items: rankByPeriod(articles, p.key, 18),
-}));
+const { rankings, usedFallback } = await getRankings(18);
+const panels = rankings;
 
 const defaultKey = 'weekly';
 
@@ -48,12 +43,7 @@ const weekday = ['日', '月', '火', '水', '木', '金', '土'][now.getDay()];
         <button
           type="button"
           data-tab={p.key}
-          class:list={[
-            'period-tab px-5 py-1.5 font-serif font-bold text-sm border border-[var(--color-ink)] transition-colors',
-            p.key === defaultKey
-              ? 'bg-[var(--color-ink)] text-[var(--color-paper)]'
-              : 'bg-transparent text-[var(--color-ink)] hover:bg-[#efe9db]',
-          ]}
+          class="period-tab px-5 py-1.5 font-serif font-bold text-sm border border-[var(--color-ink)] transition-colors"
           aria-pressed={p.key === defaultKey ? 'true' : 'false'}
         >
           {p.label}ランキング
@@ -97,12 +87,7 @@ const weekday = ['日', '月', '火', '水', '木', '金', '土'][now.getDay()];
     tabs.forEach((tab) => {
       tab.addEventListener('click', () => {
         const key = tab.dataset.tab;
-        tabs.forEach((t) => {
-          const on = t === tab;
-          t.setAttribute('aria-pressed', on ? 'true' : 'false');
-          t.classList.toggle('bg-[var(--color-ink)]', on);
-          t.classList.toggle('text-[var(--color-paper)]', on);
-        });
+        tabs.forEach((t) => t.setAttribute('aria-pressed', t === tab ? 'true' : 'false'));
         panels.forEach((p) => {
           p.hidden = p.dataset.panel !== key;
         });
