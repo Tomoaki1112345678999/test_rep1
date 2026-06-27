@@ -6,7 +6,7 @@ on:
     # 6時間ごとに自動更新（UTC基準）
     - cron: '0 */6 * * *'
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - 'techtimes/**'
       - '.github/workflows/techtimes.yml'

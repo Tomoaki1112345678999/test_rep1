@@ -36,7 +36,7 @@ npm run check    # 型チェック
 
 1. GitHubリポジトリの **Settings → Pages** を開く
 2. **Build and deployment → Source** を **「GitHub Actions」** に設定
-3. `.github/workflows/techtimes.yml` を **デフォルトブランチ（main）** に取り込む
+3. `.github/workflows/techtimes.yml` を **デフォルトブランチ（master）** に取り込む
    - スケジュール実行（cron）はデフォルトブランチのワークフローのみ動作するため
 4. 以降は6時間ごとに自動更新。手動更新は Actions タブから `workflow_dispatch` で実行可能
 
