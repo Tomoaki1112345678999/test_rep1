@@ -1,16 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 import PaperSection from '../components/PaperSection.astro';
-import { getArticles } from '../lib/articles';
-import { rankByPeriod } from '../lib/ranking';
+import { getRankings } from '../lib/articles';
 import { PERIODS } from '../lib/types';
 
-const { articles, usedFallback } = await getArticles();
-
-const panels = PERIODS.map((p) => ({
-  ...p,
-  items: rankByPeriod(articles, p.key, 18),
-}));
+const { rankings, usedFallback } = await getRankings(18);
+const panels = rankings;
 
 const defaultKey = 'weekly';
 
