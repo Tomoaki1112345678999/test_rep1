@@ -5,15 +5,19 @@ import RankItem from './RankItem.astro';
 
 interface Props {
   articles: Article[];
+  /** サイドバー用。各ソースのプールから渡す（混合上位からではなく source 毎に集計） */
+  qiitaTop?: Article[];
+  zennTop?: Article[];
 }
-const { articles } = Astro.props;
+const { articles, qiitaTop, zennTop } = Astro.props;
 
 const lead = articles[0];
 const subs = articles.slice(1, 3);
 const grid = articles.slice(3, 18);
 
-const qiitaTop = articles.filter((a) => a.source === 'qiita').slice(0, 5);
-const zennTop = articles.filter((a) => a.source === 'zenn').slice(0, 5);
+// props があればそれを使い、なければ混合一覧から派生（後方互換）
+const qiitaRanking = qiitaTop ?? articles.filter((a) => a.source === 'qiita').slice(0, 5);
+const zennRanking = zennTop ?? articles.filter((a) => a.source === 'zenn').slice(0, 5);
 ---
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-x-8 gap-y-8">
   <!-- メイン紙面 -->
@@ -52,26 +56,26 @@ const zennTop = articles.filter((a) => a.source === 'zenn').slice(0, 5);
 
   <!-- サイドバー: ソース別ランキング -->
   <aside class="lg:col-span-4 lg:border-l lg:border-[var(--color-rule)] lg:pl-8 space-y-8">
-    {qiitaTop.length > 0 && (
+    {qiitaRanking.length > 0 && (
       <section>
         <h2 class="font-serif font-bold text-base border-b-2 border-[var(--color-ink)] pb-1 mb-1">
           Qiita ランキング
         </h2>
         <ol class="list-none">
-          {qiitaTop.map((a, i) => (
+          {qiitaRanking.map((a, i) => (
             <RankItem article={a} rank={i + 1} />
           ))}
         </ol>
       </section>
     )}
 
-    {zennTop.length > 0 && (
+    {zennRanking.length > 0 && (
       <section>
         <h2 class="font-serif font-bold text-base border-b-2 border-[var(--color-ink)] pb-1 mb-1">
           Zenn ランキング
         </h2>
         <ol class="list-none">
-          {zennTop.map((a, i) => (
+          {zennRanking.map((a, i) => (
             <RankItem article={a} rank={i + 1} />
           ))}
         </ol>

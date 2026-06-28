@@ -31,8 +31,15 @@ function dedupe(articles: Article[]): Article[] {
 export interface PeriodRanking {
   key: Period;
   label: string;
+  /** メイン紙面用（Qiita/Zenn混合・いいね数順） */
   items: Article[];
+  /** サイドバー用 Qiitaランキング */
+  qiitaTop: Article[];
+  /** サイドバー用 Zennランキング */
+  zennTop: Article[];
 }
+
+const byLikes = (a: Article, b: Article) => b.likes - a.likes;
 
 /**
  * 期間ごとの人気記事ランキングを構築する。ビルド時に1度だけ呼ばれる。
@@ -46,8 +53,8 @@ export interface PeriodRanking {
 export async function getRankings(
   limit = 18
 ): Promise<{ rankings: PeriodRanking[]; usedFallback: boolean }> {
-  // Zennの新着はまとめて1回だけ取得し、各期間で使い回す
-  const zennAll = await safe('zenn', () => fetchZenn(10));
+  // Zennの新着はまとめて1回だけ取得し、各期間で使い回す（人気記事を拾うため多めに取得）
+  const zennAll = await safe('zenn', () => fetchZenn(24));
 
   const rankings: PeriodRanking[] = [];
   let realCount = 0;
@@ -62,22 +69,33 @@ export async function getRankings(
       return Number.isFinite(t) && t >= cutoff;
     });
 
-    const items = dedupe([...qiita, ...zenn])
-      .sort((a, b) => b.likes - a.likes)
-      .slice(0, limit);
+    const qiitaTop = [...qiita].sort(byLikes);
+    const zennTop = [...zenn].sort(byLikes);
+    const items = dedupe([...qiita, ...zenn]).sort(byLikes).slice(0, limit);
 
-    realCount += items.length;
-    rankings.push({ key: p.key, label: p.label, items });
+    realCount += qiitaTop.length + zennTop.length;
+    rankings.push({
+      key: p.key,
+      label: p.label,
+      items,
+      qiitaTop: qiitaTop.slice(0, 5),
+      zennTop: zennTop.slice(0, 5),
+    });
   }
 
   if (realCount === 0) {
     console.warn('[articles] 実データを取得できなかったためサンプルを使用します');
     return {
-      rankings: PERIODS.map((p) => ({
-        key: p.key,
-        label: p.label,
-        items: rankByPeriod(sampleArticles, p.key, limit),
-      })),
+      rankings: PERIODS.map((p) => {
+        const items = rankByPeriod(sampleArticles, p.key, limit);
+        return {
+          key: p.key,
+          label: p.label,
+          items,
+          qiitaTop: items.filter((a) => a.source === 'qiita').slice(0, 5),
+          zennTop: items.filter((a) => a.source === 'zenn').slice(0, 5),
+        };
+      }),
       usedFallback: true,
     };
   }
